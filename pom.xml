@@ -2,6 +2,13 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>io.helidon.applications</groupId>
+    <artifactId>helidon-mp</artifactId>
+    <version>3.2.2</version>
+    <relativePath/>
+  </parent>
+
   <groupId>fr.uge.java.WeXcel</groupId>
   <artifactId>WeXcel</artifactId>
   <version>1.0-SNAPSHOT</version>
@@ -14,6 +21,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.source>20</maven.compiler.source>
     <maven.compiler.target>20</maven.compiler.target>
+    <mainClass>fr.uge.java.WeXcel.Main</mainClass>
   </properties>
 
   <dependencies>
@@ -32,6 +40,115 @@
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>
       <version>2.2.222</version>
+      <scope>runtime</scope>
     </dependency>
+    <dependency>
+      <groupId>io.helidon</groupId>
+      <artifactId>helidon-bom</artifactId>
+      <version>3.2.2</version>
+      <type>pom</type>
+      <scope>import</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.helidon.microprofile.bundles</groupId>
+      <artifactId>helidon-microprofile</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>io.helidon.integrations.cdi</groupId>
+      <artifactId>helidon-integrations-cdi-datasource-hikaricp</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.helidon.integrations.db</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.persistence</groupId>
+      <artifactId>jakarta.persistence-api</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>jakarta.ws.rs</groupId>
+      <artifactId>jakarta.ws.rs-api</artifactId>
+      <version>3.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>io.helidon.integrations.cdi</groupId>
+      <artifactId>helidon-integrations-cdi-jpa</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.helidon.integrations.cdi</groupId>
+      <artifactId>helidon-integrations-cdi-hibernate</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+      <dependency>
+        <groupId>org.eclipse.microprofile.openapi</groupId>
+        <artifactId>microprofile-openapi-api</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>io.helidon.microprofile.openapi</groupId>
+        <artifactId>helidon-microprofile-openapi</artifactId>
+        <scope>runtime</scope>
+      </dependency>
   </dependencies>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-libs</id>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jboss.jandex</groupId>
+        <artifactId>jandex-maven-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>make-index</id>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>default-compile</id>
+            <configuration>
+              <annotationProcessorPaths>
+                <annotationProcessorPath>
+                  <groupId>org.hibernate.orm</groupId>
+                  <artifactId>hibernate-jpamodelgen</artifactId>
+                  <version>6.3.1.Final</version>
+                </annotationProcessorPath>
+              </annotationProcessorPaths>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.hibernate.orm.tooling</groupId>
+        <artifactId>hibernate-enhance-maven-plugin</artifactId>
+        <version>6.3.1.Final</version>
+        <executions>
+          <execution>
+            <id>Statically enhance JPA entities for Hibernate</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>enhance</goal>
+            </goals>
+            <configuration>
+              <failOnError>true</failOnError>
+              <enableDirtyTracking>true</enableDirtyTracking>
+              <enableLazyInitialization>true</enableLazyInitialization>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 </project>
