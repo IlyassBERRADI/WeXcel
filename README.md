@@ -1,92 +1,151 @@
-# WeXcel
+# myproject
+
+Helidon MP application that uses the dbclient API with an in-memory H2 database.
+
+## Build and run
 
 
+This example requires a database.
+Instructions for H2 can be found here: https://www.h2database.com/html/cheatSheet.html
 
-## Getting started
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
-
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
-
-## Add your files
-
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
-
-```
-cd existing_repo
-git remote add origin https://gitlab.com/projjava/WeXcel.git
-git branch -M main
-git push -uf origin main
+With JDK17+
+```bash
+mvn package
+java -jar target/myproject.jar
 ```
 
-## Integrate with your tools
+## Exercise the application
+```
+curl -X GET http://localhost:8080/simple-greet
+{"message":"Hello World!"}
+```
 
-- [ ] [Set up project integrations](https://gitlab.com/projjava/WeXcel/-/settings/integrations)
+```
+curl -X GET http://localhost:8080/pokemon
+[{"id":1,"type":12,"name":"Bulbasaur"}, ...]
 
-## Collaborate with your team
+curl -X GET http://localhost:8080/type
+[{"id":1,"name":"Normal"}, ...]
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Set auto-merge](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+curl -H "Content-Type: application/json" --request POST --data '{"id":100, "type":1, "name":"Test"}' http://localhost:8080/pokemon
+```
 
-## Test and Deploy
 
-Use the built-in continuous integration in GitLab.
+## Try metrics
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+```
+# Prometheus Format
+curl -s -X GET http://localhost:8080/metrics
+# TYPE base:gc_g1_young_generation_count gauge
+. . .
 
-***
+# JSON Format
+curl -H 'Accept: application/json' -X GET http://localhost:8080/metrics
+{"base":...
+. . .
+```
 
-# Editing this README
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+## Try health
 
-## Name
-Choose a self-explaining name for your project.
+```
+curl -s -X GET http://localhost:8080/health
+{"outcome":"UP",...
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+```
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+## Building a Native Image
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+The generation of native binaries requires an installation of GraalVM 22.1.0+. 
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+In order to produce a native binary, you must run the H2 Database as a separate process
+and use a network connection for access. The simplest way to do this is by starting a Docker
+container as follows:
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+```
+docker run -d -p 1521:1521 -p 81:81 -e H2_OPTIONS='-ifNotExists' --name=h2 oscarfonts/h2
+```
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+The resulting container will listen to port 1521 for network connections.
+Switch the `url` in `application.yaml` :
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+```
+javax.sql.DataSource.test.dataSource.url=jdbc:h2:tcp://localhost:1521/test
+```
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+Next, uncomment the following dependency in your project's pom file:
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+```
+<dependency>
+    <groupId>io.helidon.integrations.db</groupId>
+    <artifactId>h2</artifactId>
+</dependency>
+```
 
-## License
-For open source projects, say how it is licensed.
+With all these changes, re-build your project and verify that all tests are passing.
+Finally, you can build a native binary using Maven as follows:
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+```
+mvn -Pnative-image install -DskipTests
+```
+
+The generation of the executable binary may take a few minutes to complete depending on
+your hardware and operating system. When completed, the executable file will be available
+under the `target` directory and be named after the artifact ID you have chosen during the
+project generation phase.
+
+
+
+## Building the Docker Image
+
+```
+docker build -t myproject .
+```
+
+## Running the Docker Image
+
+```
+docker run --rm -p 8080:8080 myproject:latest
+```
+
+Exercise the application as described above.
+                                
+
+## Building a Custom Runtime Image
+
+Build the custom runtime image using the jlink image profile:
+
+```
+mvn package -Pjlink-image
+```
+
+This uses the helidon-maven-plugin to perform the custom image generation.
+After the build completes it will report some statistics about the build including the reduction in image size.
+
+The target/myproject-jri directory is a self contained custom image of your application. It contains your application,
+its runtime dependencies and the JDK modules it depends on. You can start your application using the provide start script:
+
+```
+./target/myproject-jri/bin/start
+```
+
+Class Data Sharing (CDS) Archive
+Also included in the custom image is a Class Data Sharing (CDS) archive that improves your application’s startup
+performance and in-memory footprint. You can learn more about Class Data Sharing in the JDK documentation.
+
+The CDS archive increases your image size to get these performance optimizations. It can be of significant size (tens of MB).
+The size of the CDS archive is reported at the end of the build output.
+
+If you’d rather have a smaller image size (with a slightly increased startup time) you can skip the creation of the CDS
+archive by executing your build like this:
+
+```
+mvn package -Pjlink-image -Djlink.image.addClassDataSharingArchive=false
+```
+
+For more information on available configuration options see the helidon-maven-plugin documentation.
+                                
