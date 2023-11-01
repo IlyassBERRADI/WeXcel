@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 //import jakarta.persistence.Id;
 
-@Entity
+@Entity(name = "ColumnEnt")
 @Table(name = "COLUMNS")
 @Access(AccessType.FIELD)
 public class ColumnEnt {

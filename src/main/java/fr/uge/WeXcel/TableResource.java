@@ -30,28 +30,37 @@ public class TableResource {
     @SuppressWarnings("unchecked")
     public List<HashMap<String, Element>> getTable(@PathParam("id") int id, @PathParam("name") String name){
         String sqlQuery = "SELECT * FROM "+name;
-        String sqlQuery2 = "SELECT c FROM Columns c WHERE c.idTable="+id;
         List<Object[]> resultList = entityManager
                 .createNativeQuery(sqlQuery)
                 .getResultList();
+
         List<ColumnEnt> resultList2 = entityManager
-                .createNativeQuery(sqlQuery2)
+                .createQuery("SELECT c FROM ColumnEnt c WHERE c.table.id = :id", ColumnEnt.class)
+                .setParameter("id", id)
                 .getResultList();
         //entityManager
         //       .createNativeQuery(sqlQuery).setr
         List<HashMap<String, Element>> rows = new ArrayList<>();
         ColumnEnt[] columns = resultList2.toArray(ColumnEnt[]::new);
-        int i=0;
+        //int i=0;
         for (Object[] os :
                 resultList) {
             HashMap<String, Element> row = new HashMap<>();
-            Element e = new Element();
-            String val = (String) os[i];
-            e.setValue(val);
-            e.setType(columns[i].getType());
-            row.put(columns[i].getName(), e);
+
+            for (int i = 1; i < os.length; i++) {
+//                System.out.println("start kukuhl");
+//                System.out.println(os[i]);
+                Element e = new Element();
+                String val = ""+os[i];
+                e.setValue(val);
+                e.setType(columns[i-1].getType());
+                row.put(columns[i-1].getName(), e);
+            }
+
+
+
             rows.add(row);
-            i++;
+            //i++;
         }
         return rows;
     }
@@ -134,10 +143,13 @@ public class TableResource {
                     table.getData()) {
                 sqlQuery2.append(separator);
                 sqlQuery2.append("(");
+                separator = "";
                 for (var val:
                      row.values()) {
                     sqlQuery2.append(separator);
+                    sqlQuery2.append("'");
                     sqlQuery2.append(val.getValue());
+                    sqlQuery2.append("'");
                     separator = ", ";
                 }
                 sqlQuery2.append(")");
