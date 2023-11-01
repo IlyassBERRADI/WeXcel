@@ -23,12 +23,23 @@
 
     <persistence-unit name="pu1" transaction-type="JTA">
         <jta-data-source>ds1</jta-data-source>
-        <class>com.example.myproject.Pokemon</class>
-        <class>com.example.myproject.PokemonType</class>
+        <!--<class>fr.uge.WeXcel.Pokemon</class>
+        <class>fr.uge.WeXcel.PokemonType</class>-->
+        <class>fr.uge.WeXcel.TableEnt</class>
+        <class>fr.uge.WeXcel.ColumnEnt</class>
         <properties>
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect"/>
+            <!--<property name="javax.sql.DataSource.ds1.dataSourceClassName" value="org.h2.jdbcx.JdbcDataSource"/>
+            <property name="javax.sql.DataSource.ds1.dataSource.url" value="jdbc:h2:./test;DB_CLOSE_DELAY=-1"/>
+            <property name="javax.sql.DataSource.ds1.dataSource.user" value="sa" />
+            <property name="javax.sql.DataSource.ds1.dataSource.password" value="sa" />-->
+
+            <!--
             <property name="jakarta.persistence.sql-load-script-source" value="META-INF/init_script.sql"/>
+-->
+<!--
             <property name="jakarta.persistence.schema-generation.database.action" value="drop-and-create"/>
+-->
         </properties>
     </persistence-unit>
 </persistence>

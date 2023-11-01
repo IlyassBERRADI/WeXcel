@@ -1,6 +1,5 @@
-package com.example.myproject;
+package fr.uge.WeXcel;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public class Line {

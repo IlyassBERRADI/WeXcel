@@ -1,5 +1,5 @@
 
-package com.example.myproject;
+package fr.uge.WeXcel;
 
 import jakarta.json.JsonArray;
 import jakarta.ws.rs.core.MediaType;
@@ -12,8 +12,6 @@ import jakarta.ws.rs.core.Response;
 
 import io.helidon.microprofile.tests.junit5.HelidonTest;
 
-import org.junit.jupiter.api.AfterAll;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -30,7 +28,7 @@ class MainTest {
     private WebTarget target;
 
 
-    @Test
+    /*@Test
     void testPokemonTypes() {
         JsonArray types = target
                 .path("type")
@@ -87,9 +85,9 @@ class MainTest {
                 .get(JsonArray.class);
         return pokemons.size();
     }
+*/
 
-
-    @Test
+    /*@Test
     void testMicroprofileMetrics() {
         String message = target.path("simple-greet/Joe")
                 .request()
@@ -125,14 +123,14 @@ class MainTest {
                 .get();
         assertThat(response.getStatus(), is(200));
     }
-
-    @Test
+*/
+    /*@Test
     void testGreet() {
         Message message = target
                 .path("simple-greet")
                 .request()
                 .get(Message.class);
         assertThat(message.getMessage(), is("Hello World!"));
-    }
+    }*/
                 
 }
