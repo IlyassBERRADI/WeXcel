@@ -1,0 +1,29 @@
+/* Masquer la barre de défilement verticale */
+body {
+  overflow-y: scroll; /* Permettre le défilement vertical */
+}
+
+/* Masquer la barre de défilement WebKit (Chrome, Safari) */
+body::-webkit-scrollbar {
+  width: 0; /* Largeur de la barre de défilement */
+  background: transparent; /* Fond de la barre de défilement */
+}
+
+/* Masquer les coins de la barre de défilement WebKit */
+body::-webkit-scrollbar-corner {
+  background: transparent;
+}
+
+/* Masquer la poignée de la barre de défilement WebKit */
+body::-webkit-scrollbar-thumb {
+  background: transparent;
+}
+
+.bg-purple {
+  background-color: #746a8d; 
+}
+
+a {
+  text-decoration: none;
+  color: #746a8d;
+}
