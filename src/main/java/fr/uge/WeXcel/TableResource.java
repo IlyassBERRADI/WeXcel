@@ -10,6 +10,7 @@ import jakarta.ws.rs.core.MediaType;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Pattern;
 
 @Path("table")
 public class TableResource {
@@ -28,7 +29,7 @@ public class TableResource {
     @Path("{id}/{name}")
     @Produces(MediaType.APPLICATION_JSON)
     @SuppressWarnings("unchecked")
-    public List<HashMap<String, Element>> getTable(@PathParam("id") int id, @PathParam("name") String name){
+    public List<LinkedHashMap<String, Element>> getTable(@PathParam("id") int id, @PathParam("name") String name){
         String sqlQuery = "SELECT * FROM "+name;
         List<Object[]> resultList = entityManager
                 .createNativeQuery(sqlQuery)
@@ -40,19 +41,18 @@ public class TableResource {
                 .getResultList();
         //entityManager
         //       .createNativeQuery(sqlQuery).setr
-        List<HashMap<String, Element>> rows = new ArrayList<>();
+        List<LinkedHashMap<String, Element>> rows = new ArrayList<>();
         ColumnEnt[] columns = resultList2.toArray(ColumnEnt[]::new);
         //int i=0;
-        for (Object[] os :
-                resultList) {
-            HashMap<String, Element> row = new HashMap<>();
 
-            for (int i = 1; i < os.length; i++) {
-//                System.out.println("start kukuhl");
-//                System.out.println(os[i]);
+        for (var os :
+                resultList) {
+            LinkedHashMap<String, Element> row = new LinkedHashMap<>();
+            for (int i = 1; i< os.length; i++) {
+                /*System.out.println("start kukuhl");
+                System.out.println(os[i]);*/
                 Element e = new Element();
-                String val = ""+os[i];
-                e.setValue(val);
+                e.setValue(os[i].toString());
                 e.setType(columns[i-1].getType());
                 row.put(columns[i-1].getName(), e);
             }
@@ -60,7 +60,6 @@ public class TableResource {
 
 
             rows.add(row);
-            //i++;
         }
         return rows;
     }
@@ -77,24 +76,11 @@ public class TableResource {
             String formattedDateTime = currentDateTime.format(formatter);
             table.setCreationDate(formattedDateTime);
             table.setModificationDate(formattedDateTime);
-            System.out.println(table.getId()+" "+
+            /*System.out.println(table.getId()+" "+
                     table.getName()+" "+table.getCreationDate()+" "+
-                    table.getModificationDate());
-            /*System.out.println(table.getColumns().size());
-            for (var elt :
-                    table.getColumns()) {
-                //elt.setTable(table);
-                System.out.println(elt.getId()+" "+elt.getType()+" "+elt.getName());
-            }*/
+                    table.getModificationDate());*/
 
             entityManager.persist(table);
-            //entityManager.flush();
-            System.out.println(";jbhkjhkjhn");
-            /*for (var elt :
-                    table.getColumns()) {
-                entityManager.persist(elt);
-            }*/
-            System.out.println(";jbhkjhkjhn");
             StringBuilder sqlQuery = new StringBuilder();
             sqlQuery.append("CREATE TABLE ");
             sqlQuery.append(table.getName());
@@ -107,13 +93,8 @@ public class TableResource {
                 var key = entry.getName();
                 var value = entry.getType();
                 String type;
-                if (value.equals("Formule") || value.equals("Chaine")){
-                    type="VARCHAR(250)";
-                }
-                else {
-                    //type="DOUBLE PRECISION";
-                    type="VARCHAR(250)";
-                }
+
+                type="VARCHAR(250)";
                 sqlQuery.append(separator);
                 sqlQuery.append(key);
                 sqlQuery.append(" ");
@@ -154,7 +135,6 @@ public class TableResource {
                 }
                 sqlQuery2.append(")");
             }
-
             entityManager.createNativeQuery(sqlQuery2.toString()).executeUpdate();
         } catch (Exception e){
             throw new BadRequestException("Unable to create table" + table.getName());
@@ -174,7 +154,10 @@ public class TableResource {
     @Path("addRow/{name}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.REQUIRED)
-    public void addRows(@PathParam("name") String tableTitle, HashMap<String, Element> elements){
+    public void addRows(@PathParam("name") String tableTitle, List<LinkedHashMap<String, Element>> elements){
+        if (elements.isEmpty()){
+            return;
+        }
         StringBuilder sqlQuery2 = new StringBuilder();
         sqlQuery2.append("INSERT INTO ");
         sqlQuery2.append(tableTitle);
@@ -182,21 +165,88 @@ public class TableResource {
         var separator = "";
 
         for (var entry :
-                elements.keySet()) {
+                elements.get(0).keySet()) {
             sqlQuery2.append(separator);
             sqlQuery2.append(entry);
             separator = ", ";
         }
-        sqlQuery2.append(") VALUES (");
+        sqlQuery2.append(") VALUES ");
         separator = "";
-        for (var val:
-                elements.values()) {
+        for (var row :
+                elements) {
             sqlQuery2.append(separator);
-            sqlQuery2.append(val.getValue());
-            separator = ", ";
+            sqlQuery2.append("(");
+            separator = "";
+            for (var val:
+                    row.values()) {
+                sqlQuery2.append(separator);
+                sqlQuery2.append("'");
+                sqlQuery2.append(val.getValue());
+                sqlQuery2.append("'");
+                separator = ", ";
+            }
+            sqlQuery2.append(")");
         }
-        sqlQuery2.append(")");
 
+        entityManager.createNativeQuery(sqlQuery2.toString()).executeUpdate();
+
+    }
+
+    @POST
+    @Path("addColumn/{id}/{name}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional(Transactional.TxType.REQUIRED)
+    public void addColumn(@PathParam("id") int id, @PathParam("name") String tableTitle, ColumnEnt column){
+        TableEnt table = new TableEnt();
+        table.setId(id);
+        column.setTable(table);
+        entityManager.persist(column);
+        entityManager.createNativeQuery("ALTER TABLE "+tableTitle+" ADD COLUMN "+column.getName()+" VARCHAR(250)").executeUpdate();
+
+    }
+
+    @POST
+    @Path("updateCell/{name}/{id}")
+    @Consumes(MediaType.TEXT_PLAIN)
+    @Transactional(Transactional.TxType.REQUIRED)
+    public void updateCell(@PathParam("name") String tableName, @PathParam("id") int idRow, Cell cell){
+        //regex (nombre, formule)
+        if (cell.getElement().getType().equals("Nombre")){
+            var pattern = Pattern.compile("-?\\d+(\\.\\d+)?");
+            var matcher = pattern.matcher(cell.getElement().getValue());
+            if (!matcher.find()){
+                //send error
+                return;
+            }
+        }
+        if (cell.getElement().getType().equals("Formule")){
+            Deque<Character> stack = new LinkedList<>();
+            var pattern = Pattern.compile("=.+");
+
+            var matcher = pattern.matcher(cell.getElement().getValue());
+            if (!matcher.find()){
+                //send error
+                return;
+            }
+            //well parenthesisized
+            for (char c : cell.getElement().getValue().toCharArray()) {
+                if (c=='('){
+                    stack.push(c);
+                }
+                if (c==')' && stack.isEmpty()){
+                    //error
+                    return;
+                } else if (c==')') {
+                    stack.pop();
+                }
+            }
+            if (!stack.isEmpty()){
+                //error
+                return;
+            }
+
+        }
+        entityManager.createNativeQuery("UPDATE "+tableName+" SET "+cell.getName()+" = '"+cell.getElement().getValue()+"' WHERE ID="+idRow).executeUpdate();
     }
 
     /*@POST

@@ -19,4 +19,12 @@ public class Element {
     public void setValue(String value) {
         this.value = value;
     }
+
+    @Override
+    public String toString() {
+        return "Element{" +
+                "type='" + type + '\'' +
+                ", value='" + value + '\'' +
+                '}';
+    }
 }

@@ -40,7 +40,7 @@ public class TableEnt {
     private int idTables;*/
 
     @Transient
-    private List<HashMap<String, Element>> data = new ArrayList<>();
+    private List<LinkedHashMap<String, Element>> data = new ArrayList<>();
 
     @JsonManagedReference
     @OneToMany( mappedBy = "table", cascade=CascadeType.ALL,
@@ -105,11 +105,11 @@ public class TableEnt {
         return columns;
     }
 
-    public List<HashMap<String, Element>> getData() {
+    public List<LinkedHashMap<String, Element>> getData() {
         return data;
     }
 
-    public void setData(List<HashMap<String, Element>> data) {
+    public void setData(List<LinkedHashMap<String, Element>> data) {
         this.data = data;
     }
 /*public HashMap<String, String> getAttributes(){
