@@ -52,7 +52,7 @@ public class TableResource {
                 /*System.out.println("start kukuhl");
                 System.out.println(os[i]);*/
                 Element e = new Element();
-                e.setValue(os[i].toString());
+                e.setValue(os[i]+"");
                 e.setType(columns[i-1].getType());
                 row.put(columns[i-1].getName(), e);
             }
