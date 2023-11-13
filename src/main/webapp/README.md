@@ -4,6 +4,10 @@
 
 In the project directory, you can run:
 
+### `npm install`
+
+Install dependencies
+
 ### `npm start`
 
 Runs the app in the development mode.\
@@ -36,4 +40,4 @@ Gets info about all the dynamic tables in the database
 
 
 ### Note
-// ,"prod": "react-scripts build --dest && mv build/* ../resources/META-INF" // Commande uniquement sur Linux à mettre dans le JSON.....
+

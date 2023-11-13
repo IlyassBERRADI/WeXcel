@@ -5,7 +5,6 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import Home from './Home';
 import SheetDetail from './SheetDetail';
 
-import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 
@@ -20,5 +19,3 @@ root.render(
     </BrowserRouter>
   </React.StrictMode>
 );
-
-reportWebVitals();
