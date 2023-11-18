@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
 function SheetDetail() {
@@ -12,7 +12,13 @@ function SheetDetail() {
   initialTableData[1][0] = 'Donnée A1';
   initialTableData[1][1] = 'Donnée B1';
   initialTableData[1][2] = 'Donnée C2';
-  const [tableData, setTableData] = useState(initialTableData);
+  const [tableData, setTableData] = useState([initialTableData]);
+  // useEffect(() => {
+  //   fetch('/${sheetId}/${sheetName}')
+  //   .then(response => response.json())
+  //   .then(data => setTableData(data))
+  //   .catch(error => console.error('Error:', error));
+  // }, []);
 
   const handleCellChange = (rowIndex, colIndex, value) => {
     const updatedTableData = [...tableData];
@@ -29,14 +35,6 @@ function SheetDetail() {
     //   }
     // });
   }
-
-  // sheetId pour récupérer les données de la feuille Excel depuis le backend
-  const sheetData = {
-    id: sheetId,
-    name: `Feuille ${sheetId}`,
-    createdAt: '2023-01-01',
-    lastModified: '2023-01-05',
-  };
 
   return (
     <div className="container-fluid p-0">
