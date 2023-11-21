@@ -7,30 +7,10 @@ function Home() {
   const [sheets, setSheets] = useState([]);
 
   useEffect(() => {
-    // Simulation de données en attendant les requêtes HTTP
-    // const fakeData = [
-    //   { id: 1, name: 'Feuille 1', createdAt: '2023-01-01', lastModified: '2023-01-05' },
-    //   { id: 2, name: 'Feuille 2', createdAt: '2023-02-10', lastModified: '2023-02-15' },
-    //   { id: 3, name: 'Feuille 3', createdAt: '2023-03-20', lastModified: '2023-03-25' },
-    //   { id: 4, name: 'Feuille 4', createdAt: '2023-04-30', lastModified: '2023-04-30' },
-    //   { id: 5, name: 'Feuille 5', createdAt: '2023-05-10', lastModified: '2023-05-15' },
-    //   { id: 6, name: 'Feuille 6', createdAt: '2023-06-20', lastModified: '2023-06-25' },
-    //   { id: 7, name: 'Feuille 7', createdAt: '2023-07-30', lastModified: '2023-07-30' },
-    //   { id: 8, name: 'Feuille 8', createdAt: '2023-08-10', lastModified: '2023-08-15' },
-    //   { id: 9, name: 'Feuille 9', createdAt: '2023-09-20', lastModified: '2023-09-25' },
-    //   { id: 10, name: 'Feuille 10', createdAt: '2023-10-30', lastModified: '2023-10-30' },
-    //   { id: 11, name: 'Feuille 11', createdAt: '2023-11-10', lastModified: '2023-11-15' },
-    //   { id: 12, name: 'Feuille 12', createdAt: '2023-12-20', lastModified: '2023-12-25' },
-
-    // ];
-
     fetch('/table/tables')
     .then(response => response.json())
     .then(data => setSheets(data))
     .catch(error => console.error('Error:', error));
-    // Mettre à jour l'état avec les données factices
-    // setSheets(fakeData);
-
   }, []);
 
   // Fonctions de tri
@@ -83,9 +63,9 @@ function Home() {
       <footer className="footer fixed-bottom text-center p-3">
         <div className="container">
           <div className="btn-group">
-            <button type="button" className="btn btn-light" onClick={() => handleSortByName()}>Trier par nom</button>
-            <button type="button" className="btn btn-light" onClick={() => handleSortByCreationDate()}>Trier par date de création</button>
-            <button type="button" className="btn btn-light" onClick={() => handleSortByModificationDate()}>Trier par date de modification</button>
+            <button type="button" className="btn btn-light bg-purple" onClick={() => handleSortByName()}>Trier par nom</button>
+            <button type="button" className="btn btn-light bg-purple" onClick={() => handleSortByModificationDate()}>Trier par date de modification</button>
+            <button type="button" className="btn btn-light bg-purple" onClick={() => handleSortByCreationDate()}>Trier par date de création</button>
           </div>
         </div>
       </footer>

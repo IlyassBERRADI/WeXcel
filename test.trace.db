@@ -2241,3 +2241,43 @@ SELECT * FROM table2 [42102-222]
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
 Table "TABLE2" not found; SQL statement:
 SELECT * FROM table2 [42102-222]
+2023-11-21 17:53:54.635875+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 17:53:54.674853+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 18:25:09.234044+01:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 18:25:09.261022+01:00 jdbc[13]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 19:32:27.338159+01:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 19:32:27.357151+01:00 jdbc[33]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 22:28:46.269430+01:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 22:28:46.289419+01:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 22:28:55.133418+01:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
+2023-11-21 22:28:55.148401+01:00 jdbc[93]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
