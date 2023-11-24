@@ -11,9 +11,10 @@ function SheetDetail() {
       try {
         const response = await fetch(`/table/${sheetId}/${sheetName}`);
         const jsonData = await response.json();
-        //console.log(jsonData);
+        console.log(jsonData);
         const matrixData = convertJSONToMatrix(jsonData);
-        //console.log(matrixData);
+        //ExtractColumnTypes(jsonData);
+        console.log(matrixData);
         setTableData(matrixData);
       } catch (error) {
         console.error('Erreur lors de la récupération des données : ', error);
@@ -27,16 +28,17 @@ function SheetDetail() {
     if (!jsonData || jsonData.length === 0) {
       return [[]];
     }
-
+  
     const columns = Object.keys(jsonData[0]);
-    const matrix = [columns];
-
+    const matrix = [columns.map(column => [column, jsonData[0][column].type])];
+  
     jsonData.forEach((rowData) => {
       const row = columns.map((column) => {
-        return rowData[column] ? rowData[column].value : ''; // Vérifiez si la valeur existe avant d'accéder à 'value'
+        return rowData[column] ? rowData[column].value : '';
       });
       matrix.push(row);
     });
+  
     return matrix;
   };
 
@@ -62,26 +64,20 @@ function SheetDetail() {
           <img src="/wexcel_white_on_black_soft.PNG" alt="Logo" height="50" className="mr-3" />
         </a>
         <h1 className="">Feuille {sheetId}</h1>
-        {/* <nav className="ml-auto">
-          <ul className="nav">
-            <li className="nav-item">
-              <button className="btn btn-light" onClick={saveChanges}>Save</button>
-            </li>
-          </ul>
-        </nav> */}
       </header>
       <div className="container ms-0 p-0">
         <table className="table table-striped">
           <thead>
             <tr>
               <th>ID</th>
-              {tableData[0]?.map((columnName, index) => ( // ? = si tableData[0] existe
+              {tableData[0]?.map((column, index) => ( // ? = si tableData[0] existe
                 <th className="text-center" key={index}>
                   <input className="text-center"
                     type="text"
-                    value={columnName}
+                    value={column[0]}
                     onChange={(e) => handleCellChange(0, index, e.target.value)}
                   />
+                  <span className="type">{column[1]}</span>
                 </th>
               ))}
               <th>
