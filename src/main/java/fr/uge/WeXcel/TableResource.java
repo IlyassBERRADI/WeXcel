@@ -255,7 +255,7 @@ public class TableResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.REQUIRED)
     public String calculateFormula(){
-        
+        return null;
     }
 
     @SuppressWarnings("unchecked")
