@@ -4,6 +4,10 @@
 
 In the project directory, you can run:
 
+### `npm install`
+
+Install dependencies
+
 ### `npm start`
 
 Runs the app in the development mode.\
@@ -25,7 +29,7 @@ It correctly bundles React in production mode and optimizes the build for the be
 The build is minified and the filenames include the hashes.\
 Your app is ready to be deployed!
 
-### ' curl -X GET http://localhost:8080/table/23/TABLE1'
+### ' curl -X GET http://localhost:8080/table/22/TABLE1'
 
 Gets the data of the table "TABLE1" with the id "23"
 
@@ -36,4 +40,4 @@ Gets info about all the dynamic tables in the database
 
 
 ### Note
-// ,"prod": "react-scripts build --dest && mv build/* ../resources/META-INF" // Commande uniquement sur Linux à mettre dans le JSON.....
+

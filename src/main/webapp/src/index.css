@@ -27,3 +27,20 @@ a {
   text-decoration: none;
   color: #746a8d;
 }
+
+/* Sheet details */
+
+.type{
+  display:none;
+	position:absolute;
+	border: solid 1px #746a8d; 
+	width:100px;  
+	background:#ffffff;
+  margin-top: -54px;
+  margin-left: 10px;
+
+}
+
+input:hover + .type{
+  display:block;
+}
