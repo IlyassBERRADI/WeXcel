@@ -68,8 +68,8 @@ public class TableResource {
     @Path("create")
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.REQUIRED)
-    public void createTable(TableEnt table) {
-        try {
+    public void createTable(TableEnt table) {//tu met le resultat dans les champs
+        try {//formule et tu le retourne
             Objects.requireNonNull(table);
             LocalDateTime currentDateTime = LocalDateTime.now();
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -207,7 +207,7 @@ public class TableResource {
 
     @POST
     @Path("updateCell/{name}/{id}")
-    @Consumes(MediaType.TEXT_PLAIN)
+    @Consumes(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.REQUIRED)
     public void updateCell(@PathParam("name") String tableName, @PathParam("id") int idRow, Cell cell){
         //regex (nombre, formule)
@@ -248,6 +248,32 @@ public class TableResource {
         }
         entityManager.createNativeQuery("UPDATE "+tableName+" SET "+cell.getName()+" = '"+cell.getElement().getValue()+"' WHERE ID="+idRow).executeUpdate();
     }
+
+
+    @POST
+    @Path("calculate/{id}/{name}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Transactional(Transactional.TxType.REQUIRED)
+    public String calculateFormula(){
+        
+    }
+
+    @SuppressWarnings("unchecked")
+    public Element getCell(Index ind, String nameTable, int idTable){//persist the formula and the result
+        String sqlQuery = "SELECT * FROM "+nameTable+" WHERE ID = "+ind.nbLine();
+        List<Object[]> result = entityManager
+                .createNativeQuery(sqlQuery)
+                .getResultList();
+        List<ColumnEnt> resultList = entityManager
+                .createQuery("SELECT c FROM ColumnEnt c WHERE c.table.id = :id", ColumnEnt.class)
+                .setParameter("id", idTable)
+                .getResultList();
+        Element elt = new Element();
+        elt.setType(resultList.get(ind.nbColumn()-1).getType());
+        elt.setValue(result.get(0)[ind.nbColumn()]+"");
+        return elt;
+    }
+
 
     /*@POST
     @Path("delete")
