@@ -37,7 +37,7 @@ Gets the data of the table "TABLE1" with the id "23"
 
 Gets info about all the dynamic tables in the database
 
-
+http://localhost:8080/addColumn/22/TABLE1
 
 ### Note
 

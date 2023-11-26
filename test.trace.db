@@ -2281,3 +2281,7 @@ SELECT * FROM table2 [42102-222]
 org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
 Table "TABLE2" not found; SQL statement:
 SELECT * FROM table2 [42102-222]
+2023-11-26 16:41:56.156989+01:00 jdbc[3]: exception
+org.h2.jdbc.JdbcSQLSyntaxErrorException: Table "TABLE2" non trouvée
+Table "TABLE2" not found; SQL statement:
+SELECT * FROM table2 [42102-222]
