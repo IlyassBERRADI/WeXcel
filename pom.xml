@@ -187,51 +187,6 @@
                 </executions>
             </plugin>
 
-
-            <!--<plugin>
-                <groupId>org.hibernate.orm.tooling</groupId>
-                <artifactId>hibernate-enhance-maven-plugin</artifactId>
-                <version>6.3.1.Final</version>
-                <executions>
-                    <execution>
-                        <configuration>
-                            <failOnError>true</failOnError>
-                            <enableLazyInitialization>true</enableLazyInitialization>
-                            <enableDirtyTracking>true</enableDirtyTracking>
-                        </configuration>
-                        <goals>
-                            <goal>enhance</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>com.evolvedbinary.maven.jvnet</groupId>
-                <artifactId>jaxb30-maven-plugin</artifactId>
-                <version>0.15.0</version>
-                <executions>
-                    <execution>
-                        <id>Generate persistence.xml Java objects</id>
-                        <goals>
-                            <goal>generate</goal>
-                        </goals>
-                        <configuration>
-                            <generatePackage>io.helidon.archetypes.tests.jaxb</generatePackage>
-                            <markGenerated>true</markGenerated>
-                            <schemas>
-                                <schema>
-                                    <dependencyResource>
-                                        <groupId>jakarta.persistence</groupId>
-                                        <artifactId>jakarta.persistence-api</artifactId>
-                                        <resource>jakarta/persistence/persistence_3_0.xsd</resource>
-                                    </dependencyResource>
-                                </schema>
-                            </schemas>
-                            <strict>false</strict>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>-->
             <plugin>
                 <groupId>org.jboss.jandex</groupId>
                 <artifactId>jandex-maven-plugin</artifactId>
