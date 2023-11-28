@@ -5,9 +5,13 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
+import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.MediaType;
 import fr.uge.WeXcel.New.Entity.Reference;
+import jakarta.ws.rs.core.Response;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Path("api") // Chemin de base du service web
@@ -72,11 +76,10 @@ public class Manager {
     }
 
     /**
-     * Supprimer une référence
+     * Update cell content
+     * Column's name need to be in uppercase in update query
      *
-     * column need to be .Touppercase
-     * @param column nom de la colonne
-     *
+     * @param value new value (optional)
      */
     @POST
     @Path("updateCell/{id}/{column}/{row}")
@@ -85,18 +88,15 @@ public class Manager {
     public void updateCell(@PathParam("id") Long id, @PathParam("column") String column, @PathParam("row") Long row, String value) {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
-        System.out.println(id + " " + column + " " + row + " " + value);
-        if (columnsData.stream().noneMatch(rowData -> rowData[0].equals(column))) {
-            System.out.println("La colonne n'existe pas");
+        if (columnsData.stream().noneMatch(rowData -> rowData[0].equals(column.toUpperCase()))) {
             throw new BadRequestException("La colonne n'existe pas");
         }
         if (row > getLastIdRow(computedTableName)) {
-            System.out.println("La ligne n'existe pas");
             throw new BadRequestException("La ligne n'existe pas");
         }
-        em.createNativeQuery("UPDATE " + computedTableName + " SET " + column + " = ? WHERE idRow = ?")
-                .setParameter(1, value)
-                .setParameter(2, row)
+        em.createNativeQuery("UPDATE " + computedTableName + " SET " + column.toUpperCase() + " = :value WHERE idRow = :row")
+                .setParameter("value", (value == null || value.isEmpty()) ? null : value) // setParameter is a secure way to avoid SQL injection
+                .setParameter("row", row)
                 .executeUpdate();
     }
 
@@ -106,15 +106,24 @@ public class Manager {
 
     }
 
+    /**
+     * Add a row to the table
+     * If you want to add a row with null values, send a Post request with no body
+     *
+     * @param id     reference's id
+     * @param values values to add (optional)
+     */
     @POST
     @Path("addRow/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Transactional(Transactional.TxType.REQUIRED)
-    public void addRow(@PathParam("id") Long id, @DefaultValue("[]") List<String> values) {
+    public void addRow(@PathParam("id") Long id, List<String> values) {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
 
-        if (columnsData.size() - 2 != values.size()) {
+        if (values == null) {
+            values = new ArrayList<>(Collections.nCopies(columnsData.size() - 2, null));
+        } else if (columnsData.size() - 2 != values.size()) {
             throw new BadRequestException("Le nombre de valeurs ne correspond pas au nombre de colonnes");
         }
         // Construire la requête SQL INSERT sans spécifier le nom des colonnes
@@ -124,7 +133,6 @@ public class Manager {
         for (int i = 0; i < values.size(); i++) {
             query += (i == 0 ? "?" : ", ?");
         }
-
         query += ")";
 
         // Exécuter la requête SQL INSERT pour chaque valeur dans la liste
@@ -149,17 +157,19 @@ public class Manager {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
 
-        if (columnsData.stream().anyMatch(row -> row[0].equals(column.name()))) {
+        if (columnsData.stream().anyMatch(row -> row[0].equals(column.name().toUpperCase()))) {
             throw new BadRequestException("La colonne existe déjà");
         } // Limitation de la base de données
-        if(column.values().size() != getLastIdRow(computedTableName)){
-            throw new BadRequestException("Le nombre de valeurs est différent du nombre de lignes");
-        }
-
         em.createNativeQuery("ALTER TABLE " + computedTableName + " ADD COLUMN " + column.name() + " " + column.type())
                 .executeUpdate();
-        for (int i = 0; i < column.values().size(); i++) {
-            updateCell(id, column.name().toUpperCase(), (long) i + 1, column.values().get(i));
+        if (column.values() != null) {
+            if (column.values().size() != getLastIdRow(computedTableName)) {
+                throw new BadRequestException("Le nombre de valeurs est différent du nombre de lignes");
+            } else {
+                for (int i = 0; i < column.values().size(); i++) {
+                    updateCell(id, column.name(), (long) i + 1, column.values().get(i));
+                }
+            }
         }
     }
 

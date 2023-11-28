@@ -7,10 +7,10 @@ function Home() {
   const [sheets, setSheets] = useState([]);
 
   useEffect(() => {
-    fetch('/table/tables')
-    .then(response => response.json())
-    .then(data => setSheets(data))
-    .catch(error => console.error('Error:', error));
+    fetch('/api/references')
+      .then(response => response.json())
+      .then(data => setSheets(data))
+      .catch(error => console.error('Error:', error));
   }, []);
 
   // Fonctions de tri
@@ -48,11 +48,11 @@ function Home() {
           <h2>Vos feuilles</h2>
           <ul className="list-group">
             {sheets.map(sheet => (
-              <Link to={`/sheets/${sheet.id}/${sheet.name}`} key={sheet.id}>
+              <Link to={`/sheets/${sheet.id}`} key={sheet.id}>
                 <li className="list-group-item">
                   <strong>Nom :</strong> {sheet.name} <br />
-                  <strong>Date de création :</strong> {sheet.creationDate} <br />
-                  <strong>Date de dernière modification :</strong> {sheet.modificationDate} <br />
+                  <strong>Date de création :</strong> {new Date(sheet.creationDate).toLocaleDateString()} <br />
+                  <strong>Date de dernière modification :</strong> {new Date(sheet.lastModificationDate).toLocaleDateString()} <br />
                 </li>
               </Link>
             ))}
