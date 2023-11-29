@@ -139,7 +139,7 @@
 
     </dependencies>
 
-    <!--<build>
+    <build>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -192,7 +192,7 @@
                 <artifactId>jandex-maven-plugin</artifactId>
                 <version>1.2.3</version>
             </plugin>
-            <plugin>
+            <!--<plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.14.2</version>
@@ -251,7 +251,8 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin>-->
         </plugins>
-    </build>-->
+    </build>
 </project>
+
