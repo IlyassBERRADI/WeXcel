@@ -129,7 +129,7 @@ function SheetDetail() {
         <a className="nav-link text-white" href="/">
           <img src="/wexcel_white_on_black_soft.PNG" alt="Logo" height="50" className="mr-3" />
         </a>
-        <h1 className="">Feuille {sheetId}</h1>
+        <h1 className="">Feuille {sheetId}</h1> // TODO: récupérer le nom de la feuille
       </header>
       <div className="container ms-0 p-0">
         <table className="table table-striped">

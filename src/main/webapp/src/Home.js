@@ -5,13 +5,14 @@ import './index.css';
 
 function Home() {
   const [sheets, setSheets] = useState([]);
-
+  const [contentChanged, setContentChanged] = useState(false);
   useEffect(() => {
     fetch('/api/references')
       .then(response => response.json())
       .then(data => setSheets(data))
       .catch(error => console.error('Error:', error));
-  }, []);
+    setContentChanged(false);
+  }, [contentChanged]);
 
   // Fonctions de tri
   const handleSortByName = () => {
@@ -25,6 +26,51 @@ function Home() {
   const handleSortByModificationDate = () => {
     const sortedSheets = [...sheets].sort((a, b) => new Date(a.lastModified) - new Date(b.lastModified));
     setSheets(sortedSheets);
+  };
+
+  const [newSheetName, setNewSheetName] = useState('');
+
+  const createNewSheet = async () => {
+    try {
+      // Vérifie que le nom de la colonne n'est pas vide avant de faire la requête
+      if (!newSheetName.trim()) {
+        console.error('Le nom de la colonne ne peut pas être vide.');
+        return;
+      }
+
+      // Effectue la requête POST vers l'API
+      const response = await fetch(`/api/create`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: newSheetName,
+          creationDate: new Date(),
+          lastModificationDate: new Date()
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur lors de l'ajout de la colonne : ${response.statusText}`);
+      }
+      setNewSheetName('')
+      setContentChanged(true);
+
+    } catch (error) {
+      console.error('Erreur lors de l\'ajout de la colonne :', error.message);
+    }
+  };
+
+  const handleNewSheetChange = (e) => {
+    setNewSheetName(e.target.value);
+  };
+
+  const handleInputKeyDown = (e) => {
+    // Vérifie si la touche pressée est la touche "Entrée" (code 13)
+    if (e.key === 'Enter') {
+      createNewSheet();
+    }
   };
 
   return (
@@ -56,8 +102,12 @@ function Home() {
                 </li>
               </Link>
             ))}
-
           </ul>
+          <input className="text-center p-2 mt-3 "
+            type="text" placeholder="Entrer pour valider"
+            value={newSheetName}
+            onChange={handleNewSheetChange}
+            onKeyDown={handleInputKeyDown} />
         </main>
       </div>
       <footer className="footer fixed-bottom text-center p-3">
