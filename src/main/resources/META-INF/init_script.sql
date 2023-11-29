@@ -1,25 +1,26 @@
---INSERT INTO POKEMONTYPE VALUES (1, 'Normal');
---INSERT INTO POKEMONTYPE VALUES (2, 'Fighting');
---INSERT INTO POKEMONTYPE VALUES (3, 'Flying');
---INSERT INTO POKEMONTYPE VALUES (4, 'Poison');
---INSERT INTO POKEMONTYPE VALUES (5, 'Ground');
---INSERT INTO POKEMONTYPE VALUES (6, 'Rock');
---INSERT INTO POKEMONTYPE VALUES (7, 'Bug');
---INSERT INTO POKEMONTYPE VALUES (8, 'Ghost');
---INSERT INTO POKEMONTYPE VALUES (9, 'Steel');
---INSERT INTO POKEMONTYPE VALUES (10, 'Fire');
---INSERT INTO POKEMONTYPE VALUES (11, 'Water');
---INSERT INTO POKEMONTYPE VALUES (12, 'Grass');
---INSERT INTO POKEMONTYPE VALUES (13, 'Electric');
---INSERT INTO POKEMONTYPE VALUES (14, 'Psychic');
---INSERT INTO POKEMONTYPE VALUES (15, 'Ice');
---INSERT INTO POKEMONTYPE VALUES (16, 'Dragon');
---INSERT INTO POKEMONTYPE VALUES (17, 'Dark');
---INSERT INTO POKEMONTYPE VALUES (18, 'Fairy');
---
---INSERT INTO POKEMON VALUES (1, 'Bulbasaur', 12);
---INSERT INTO POKEMON VALUES (2, 'Charmander', 10);
---INSERT INTO POKEMON VALUES (3, 'Squirtle', 11);
---INSERT INTO POKEMON VALUES (4, 'Caterpie', 7);
---INSERT INTO POKEMON VALUES (5, 'Weedle', 7);
---INSERT INTO POKEMON VALUES (6, 'Pidgey', 3);
+-- Crée la table Reference si elle n'existe pas
+CREATE TABLE IF NOT EXISTS Reference
+(
+    Id                   SERIAL,
+    Name                 VARCHAR(50),
+    CreationDate         DATE,
+    LastModificationDate TIMESTAMP,
+    PRIMARY KEY (Id)
+);
+
+-- Crée la table Adam si elle n'existe pas
+CREATE TABLE IF NOT EXISTS Adam_1_
+(
+    Id            INTEGER,
+    IdRow         BIGINT,
+    ColumnNumber  DOUBLE PRECISION,
+    ColumnFormule VARCHAR(255),
+    ColumnVarchar VARCHAR(255),
+    PRIMARY KEY (IdRow, Id),
+    FOREIGN KEY (Id) REFERENCES Reference (Id)
+);
+
+-- Insère des données dans la table Reference si elles n'existent pas déjà
+INSERT INTO Reference (Name, CreationDate, LastModificationDate)
+SELECT 'Adam', CURRENT_DATE, CURRENT_TIMESTAMP
+WHERE NOT EXISTS (SELECT 1 FROM Reference WHERE Name = 'Adam');
