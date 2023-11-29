@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { FaTimes } from 'react-icons/fa';
 import { Link } from 'react-router-dom';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
@@ -73,6 +74,26 @@ function Home() {
     }
   };
 
+  const deleteSheet = async (id) => {
+    try {
+      // Effectue la requête POST vers l'API
+      const response = await fetch(`/api/delete/${id}`, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (!response.ok) {
+        throw new Error(`Erreur lors de la suppression de la feuille : ${response.statusText}`);
+      }
+      setContentChanged(true);
+
+    } catch (error) {
+      console.error('Erreur lors de la suppression de la feuille :', error.message);
+    }
+  }
+
   return (
     <div className="container-fluid p-0">
       <header className="p-3 bg-purple text-white d-flex align-items-center">
@@ -94,13 +115,22 @@ function Home() {
           <h2>Vos feuilles</h2>
           <ul className="list-group">
             {sheets.map(sheet => (
-              <Link to={`/sheets/${sheet.id}`} key={sheet.id}>
-                <li className="list-group-item">
-                  <strong>Nom :</strong> {sheet.name} <br />
-                  <strong>Date de création :</strong> {new Date(sheet.creationDate).toLocaleDateString()} <br />
-                  <strong>Date de dernière modification :</strong> {new Date(sheet.lastModificationDate).toLocaleDateString()} <br />
-                </li>
-              </Link>
+              <div className="list-group-item d-flex justify-content-between align-items-center" key={sheet.id}>
+                <Link to={`/sheets/${sheet.id}`}>
+                  <li className="list-group-item ">
+                    <strong>Nom :</strong> {sheet.name} <br />
+                    <strong>Date de création :</strong> {new Date(sheet.creationDate).toLocaleDateString()} <br />
+                    <strong>Date de dernière modification :</strong> {new Date(sheet.lastModificationDate).toLocaleDateString()} <br />
+                  </li>
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-light bg-purple delete-button"
+                  onClick={() => deleteSheet(sheet.id)}
+                >
+                  <FaTimes />
+                </button>
+              </div>
             ))}
           </ul>
           <input className="text-center p-2 mt-3 "
