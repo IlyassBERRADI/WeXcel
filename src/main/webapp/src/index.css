@@ -41,6 +41,13 @@ a {
 
 }
 
-input:hover + .type{
+th:hover .type{
   display:block;
+}
+
+.list-item-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px; /* Ajustez la marge en fonction de vos besoins */
 }
