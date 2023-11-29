@@ -1,14 +1,13 @@
 package fr.uge.WeXcel.New;
 
 import fr.uge.WeXcel.New.Entity.Column;
+import fr.uge.WeXcel.New.Entity.Reference;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
-import jakarta.ws.rs.core.CacheControl;
 import jakarta.ws.rs.core.MediaType;
-import fr.uge.WeXcel.New.Entity.Reference;
-import jakarta.ws.rs.core.Response;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -27,15 +26,26 @@ public class Manager {
     }
 
     private List<String> getColumnContent(String computedTableName, String column) {
-        return em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class)
-                .getResultList();
+        try {
+            return em.createNativeQuery("SELECT t."+column+" FROM "+computedTableName+" t", String.class) // Gérer potentiel sql injection
+//                   .setParameter(1, column)
+//                    .setParameter(2, computedTableName)*/
+                    .getResultList();
+        } catch (Exception e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
 
     private String getTableName(Long id) {
-        return em.createQuery("SELECT r.name FROM Reference r WHERE r.id = :id", String.class)
-                .setParameter("id", id)
-                .getSingleResult(); // Utilise JPQL( orienté objet et spécifique à JPA) pour obtenir le nom de la table
+        try {
+            return em.createQuery("SELECT r.name FROM Reference r WHERE r.id = :id", String.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (Exception e) {
+            throw new NotFoundException(e.getMessage());
+        }
     }
+
 
     private List<Object[]> getColumnsData(String tableName) {
         return em.createNativeQuery("SHOW COLUMNS FROM " + tableName).getResultList();
@@ -55,6 +65,7 @@ public class Manager {
     }
 
 
+
     /**
      * Créer une nouvelle référence
      * JSON envoyé par le client : {
@@ -71,8 +82,13 @@ public class Manager {
     @Transactional(Transactional.TxType.REQUIRED) // Indique que la méthode doit être exécutée dans une transaction
     public void addReference(Reference newReference) {
         em.persist(newReference);
-        em.createNativeQuery("CREATE TABLE " + newReference.getComputedName() + " (id INTEGER, idRow BIGINT, InsertName VARCHAR(255), PRIMARY KEY (id, idRow), FOREIGN KEY(Id) REFERENCES Reference(Id))")
-                .executeUpdate();
+        try {
+            em.createNativeQuery("CREATE TABLE " + newReference.getComputedName() + " (id INTEGER, idRow BIGINT, PRIMARY KEY(id, idRow), FOREIGN KEY(Id) REFERENCES Reference(Id))")
+                    .executeUpdate();
+        } catch (Exception e) {
+            em.remove(newReference);
+            throw new BadRequestException(e.getMessage());
+        }
     }
 
     /**
@@ -103,7 +119,6 @@ public class Manager {
     private long getLastIdRow(String computedTableName) {
         return (long) em.createNativeQuery("SELECT COALESCE(MAX(idRow), 0) FROM " + computedTableName, Long.class)
                 .getSingleResult();
-
     }
 
     /**
@@ -120,31 +135,26 @@ public class Manager {
     public void addRow(@PathParam("id") Long id, List<String> values) {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
-
         if (values == null) {
             values = new ArrayList<>(Collections.nCopies(columnsData.size() - 2, null));
         } else if (columnsData.size() - 2 != values.size()) {
             throw new BadRequestException("Le nombre de valeurs ne correspond pas au nombre de colonnes");
         }
         // Construire la requête SQL INSERT sans spécifier le nom des colonnes
-        String query = "INSERT INTO " + computedTableName + " VALUES (?, ?, ";
-
+        StringBuilder query = new StringBuilder("INSERT INTO " + computedTableName + " VALUES (?, ?, ");
         // Ajouter les marqueurs de paramètres pour le nombre dynamique de colonnes
         for (int i = 0; i < values.size(); i++) {
-            query += (i == 0 ? "?" : ", ?");
+            query.append(i == 0 ? "?" : ", ?");
         }
-        query += ")";
-
+        query.append(")");
         // Exécuter la requête SQL INSERT pour chaque valeur dans la liste
-        var nativeQuery = em.createNativeQuery(query);
+        var nativeQuery = em.createNativeQuery(query.toString());
         nativeQuery.setParameter(1, id);
         nativeQuery.setParameter(2, getLastIdRow(computedTableName) + 1);
-
         // Ajouter les valeurs comme paramètres individuels
         for (int i = 0; i < values.size(); i++) {
             nativeQuery.setParameter(3 + i, values.get(i));
         }
-
         nativeQuery.executeUpdate();
     }
 
@@ -156,11 +166,10 @@ public class Manager {
     public void addColumn(@PathParam("id") Long id, Column column) {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
-
         if (columnsData.stream().anyMatch(row -> row[0].equals(column.name().toUpperCase()))) {
             throw new BadRequestException("La colonne existe déjà");
         } // Limitation de la base de données
-        em.createNativeQuery("ALTER TABLE " + computedTableName + " ADD COLUMN " + column.name() + " " + column.type())
+        em.createNativeQuery("ALTER TABLE " + computedTableName + " ADD COLUMN "+column.name()+" "+ column.type()) // Gérer potentiel injection SQL
                 .executeUpdate();
         if (column.values() != null) {
             if (column.values().size() != getLastIdRow(computedTableName)) {
@@ -182,7 +191,6 @@ public class Manager {
         // Supprimer la table associée
         em.createNativeQuery("DROP TABLE IF EXISTS " + computedTableName)
                 .executeUpdate();
-
         // Supprimer la référence
         em.createQuery("DELETE FROM Reference r WHERE r.id = :id")
                 .setParameter("id", id)
