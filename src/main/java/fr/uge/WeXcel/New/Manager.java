@@ -14,11 +14,25 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+/**
+ * This class contains all the necessary methods for mapping database tables to Java
+ * classes
+ */
 @Path("api") // Chemin de base du service web
 public class Manager {
+
+    /**
+     * Instance of EntityManager that will manage the persistence unit
+     */
     @PersistenceContext(unitName = "pu1")
     private EntityManager em;
 
+
+    /**
+     * Retrieves all the data about the created tables
+     *
+     * @return List of objects each one containing a table's data
+     */
     @GET
     @Path("references")
     @Produces(MediaType.APPLICATION_JSON)
@@ -26,19 +40,44 @@ public class Manager {
         return em.createQuery("SELECT r FROM Reference r", Reference.class).getResultList();
     }
 
+    /**
+     * Retrieves all the data of a table's column from the database
+     *
+     * @param computedTableName The table's name in the database
+     * @param column The column's name
+     *
+     * @return List of elements contained in the column
+     */
+    @SuppressWarnings("unchecked")
     private List<String> getColumnContent(String computedTableName, String column) {
-        return em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class)
+        return (List<String>) em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class)
                 .getResultList();
     }
 
+
+    /**
+     *Gets the table's name using its id
+     *
+     * @param id The table's id
+     *
+     * @return The tables name
+     */
     private String getTableName(Long id) {
         return em.createQuery("SELECT r.name FROM Reference r WHERE r.id = :id", String.class)
                 .setParameter("id", id)
                 .getSingleResult(); // Utilise JPQL( orienté objet et spécifique à JPA) pour obtenir le nom de la table
     }
 
+
+    /**
+     *Retrieves columns' data (name and type) of a certain table
+     *
+     * @param tableName Table's name
+     * @return List of objects each one representing a certain column
+     */
+    @SuppressWarnings("unchecked")
     private List<Object[]> getColumnsData(String tableName) {
-        return em.createNativeQuery("SHOW COLUMNS FROM " + tableName).getResultList();
+        return (List<Object[]>) em.createNativeQuery("SHOW COLUMNS FROM " + tableName).getResultList();
     }
 
     @GET
