@@ -3,7 +3,6 @@ package fr.uge.WeXcel.New;
 import fr.uge.WeXcel.New.Entity.Column;
 import fr.uge.WeXcel.New.Entity.Reference;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -27,7 +26,7 @@ public class Manager {
 
     private List<String> getColumnContent(String computedTableName, String column) {
         try {
-            return em.createNativeQuery("SELECT t."+column+" FROM "+computedTableName+" t", String.class) // Gérer potentiel sql injection
+            return em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class) // Gérer potentiel sql injection
 //                   .setParameter(1, column)
 //                    .setParameter(2, computedTableName)*/
                     .getResultList();
@@ -63,7 +62,6 @@ public class Manager {
                 .map(row -> new Column((String) row[0], (String) row[1], getColumnContent(computedTableName, (String) row[0])))
                 .toList();
     }
-
 
 
     /**
@@ -166,18 +164,17 @@ public class Manager {
     public void addColumn(@PathParam("id") Long id, Column column) {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
-        if (columnsData.stream().anyMatch(row -> row[0].equals(column.name().toUpperCase()))) {
+        if (columnsData.stream().anyMatch(row -> row[0].equals(column.getName().toUpperCase()))) {
             throw new BadRequestException("La colonne existe déjà");
         } // Limitation de la base de données
-        em.createNativeQuery("ALTER TABLE " + computedTableName + " ADD COLUMN "+column.name()+" "+ column.type()) // Gérer potentiel injection SQL
+        em.createNativeQuery("ALTER TABLE " + computedTableName + " ADD COLUMN " + column.getName() + " " + column.getType()) // Gérer potentiel injection SQL
                 .executeUpdate();
-        if (column.values() != null) {
-            if (column.values().size() != getLastIdRow(computedTableName)) {
-                throw new BadRequestException("Le nombre de valeurs est différent du nombre de lignes");
-            } else {
-                for (int i = 0; i < column.values().size(); i++) {
-                    updateCell(id, column.name(), (long) i + 1, column.values().get(i));
-                }
+
+        if (column.size() != 0 && column.size() != getLastIdRow(computedTableName)) {
+            throw new BadRequestException("Le nombre de valeurs est différent du nombre de lignes");
+        } else {
+            for (int i = 0; i < column.size(); i++) {
+                updateCell(id, column.getName(), (long) i + 1, column.getValue(i));
             }
         }
     }
