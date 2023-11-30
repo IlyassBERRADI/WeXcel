@@ -4,9 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
+
+/**
+ * Represents a column of a certain table in the database
+ */
 public class Column {
+
+    /**
+     * The column's name
+     */
     private String name;
+
+    /**
+     * The column's type
+     */
     private ValueType type;
+
+    /**
+     * The values inside the column
+     */
     private List<String> values;
 
     // Constructeur par défaut nécessaire pour JPA

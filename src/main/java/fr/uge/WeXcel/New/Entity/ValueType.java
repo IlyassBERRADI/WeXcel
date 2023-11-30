@@ -3,6 +3,11 @@ package fr.uge.WeXcel.New.Entity;
 import java.util.List;
 import java.util.Objects;
 
+
+/**
+ * Represents the possible types of each dynamic table's column in the
+ * database
+ */
 public enum ValueType {
     NUMBER("DOUBLE PRECISION"),
     STRING("VARCHAR(255)"),
@@ -28,6 +33,12 @@ public enum ValueType {
         throw new IllegalArgumentException("No constant with text " + text + " found");
     }
 
+
+    /**
+     * Gets the parameter's type
+     * @param text A value
+     * @return The type of the value
+     */
     public static ValueType fromContent(String text) {
         Objects.requireNonNull(text);
 
@@ -42,6 +53,13 @@ public enum ValueType {
         }
     }
 
+
+    /**
+     * Gets the list's type
+     *
+     * @param list List of values
+     * @return The type of the list
+     */
     public static ValueType fromListContent(List<String> list) {
         return list.stream()
                 .filter(Objects::nonNull) // Ignorer les valeurs null

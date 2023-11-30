@@ -12,11 +12,25 @@ import jakarta.ws.rs.core.MediaType;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * This class contains the different methods that helps do the mapping the database tables
+ * to java classes
+ */
 @Path("api") // Chemin de base du service web
 public class Manager {
+
+    /**
+     * This attribute manages the entities, operations and transactions
+     */
     @PersistenceContext(unitName = "pu1")
     private EntityManager em;
 
+
+    /**
+     * This method gets the data of all the tables
+     *
+     * @return List of all tables' data
+     */
     @GET
     @Path("references")
     @Produces(MediaType.APPLICATION_JSON)
@@ -24,6 +38,14 @@ public class Manager {
         return em.createQuery("SELECT r FROM Reference r", Reference.class).getResultList();
     }
 
+
+    /**
+     * Retrieves a certain column data from the database
+     *
+     * @param computedTableName The table's name
+     * @param column The columns name
+     * @return List of the column's data
+     */
     private List<String> getColumnContent(String computedTableName, String column) {
         try {
             return em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class) // Gérer potentiel sql injection
@@ -35,6 +57,13 @@ public class Manager {
         }
     }
 
+
+    /**
+     * Selects the table's name from the database
+     *
+     * @param id The table's id
+     * @return the table's name
+     */
     private String getTableName(Long id) {
         try {
             return em.createQuery("SELECT r.name FROM Reference r WHERE r.id = :id", String.class)
@@ -46,6 +75,12 @@ public class Manager {
     }
 
 
+    /**
+     * Gets the table's columns' names and types
+     *
+     * @param tableName The table's name
+     * @return List of each column and its data
+     */
     private ArrayList<String[]> getColumnsData(String tableName) {
         var result = em.createNativeQuery("SHOW COLUMNS FROM " + tableName).getResultList();
         ArrayList<String[]> columnsData = new ArrayList<>();
@@ -64,6 +99,12 @@ public class Manager {
     }
 
 
+    /**
+     * Gets the table's data by retrieving the data of each column
+     *
+     * @param id The tables id
+     * @return List of Column entities
+     */
     @GET
     @Path("content/{id}")
     @Produces(MediaType.APPLICATION_JSON)
@@ -79,14 +120,14 @@ public class Manager {
 
 
     /**
-     * Créer une nouvelle référence
-     * JSON envoyé par le client : {
-     * "name": "Nouvelle Référence",
+     * Creates a new reference
+     * JSON sent by the client : {
+     * "name": "New Reference",
      * "creationDate": "2023-01-01",
      * "lastModificationDate": "2023-01-01"
      * }
      *
-     * @param newReference
+     * @param newReference Reference instance
      */
     @POST
     @Path("create")
@@ -104,6 +145,11 @@ public class Manager {
     }
 
 
+    /**
+     * Retrieves the last row's id of a certain table
+     * @param computedTableName The table's name
+     * @return Row's id
+     */
     private Long getLastIdRow(String computedTableName) {
         return (long) em.createNativeQuery("SELECT COALESCE(MAX(idRow), -1) FROM " + computedTableName, Long.class)
                 .getSingleResult();
@@ -147,6 +193,12 @@ public class Manager {
     }
 
 
+    /**
+     *Adds a new column to a certain table
+     *
+     * @param id Table's id
+     * @param column Column entity
+     */
     @POST
     @Path("addColumn/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
@@ -170,6 +222,12 @@ public class Manager {
         }
     }
 
+    /**
+     *Deletes a column from a certain table
+     *
+     * @param computedTableName Table's name
+     * @param columnName Column's name
+     */
     private void deleteColumn(String computedTableName, String columnName) {
         try {
             em.createNativeQuery("ALTER TABLE " + computedTableName + " DROP COLUMN " + columnName.toUpperCase())
@@ -179,6 +237,19 @@ public class Manager {
         }
     }
 
+
+    /**
+     * Updates a column in case the type changes
+     *
+     * @param computedTableName Table's name
+     * @param columnName Column's name
+     * @param columnType Column's type
+     * @param value Updated value
+     * @param valueType Updated value's type
+     * @param row The row's number of the updated value
+     * @param columnDataIndex The column's index
+     * @param columnsData The column's data
+     */
     private void updateColumn(String computedTableName, String columnName, ValueType columnType, String value, ValueType valueType, Long row, int columnDataIndex, List<String[]> columnsData) {
         // A partir de là, on sait que'il faut supprimer la colonne et la recréer
 
@@ -253,6 +324,12 @@ public class Manager {
 
     }
 
+
+    /**
+     * Deletes a table
+     *
+     * @param id Table's id
+     */
     @DELETE
     @Path("/delete/{id}")
     @Transactional(Transactional.TxType.REQUIRED)
