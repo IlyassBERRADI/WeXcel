@@ -2,6 +2,7 @@ package fr.uge.WeXcel.New;
 
 import fr.uge.WeXcel.New.Entity.Column;
 import fr.uge.WeXcel.New.Entity.Reference;
+import fr.uge.WeXcel.New.Entity.ValueType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
@@ -9,8 +10,10 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Path("api") // Chemin de base du service web
 public class Manager {
@@ -46,20 +49,34 @@ public class Manager {
     }
 
 
-    private List<Object[]> getColumnsData(String tableName) {
-        return em.createNativeQuery("SHOW COLUMNS FROM " + tableName).getResultList();
+    private List<String[]> getColumnsData(String tableName) {
+        var result = em.createNativeQuery("SHOW COLUMNS FROM " + tableName).getResultList();
+        List<String[]> columnsData = new ArrayList<>();
+        for (Object obj : result) {
+            Object[] row = (Object[]) obj;
+            if (row != null && row.length > 1) {
+                String columnType = String.valueOf(row[1]);
+                if ("CHARACTER VARYING(255)".equals(columnType)) {
+                    row[1] = "VARCHAR(255)";
+                }
+                columnsData.add(Arrays.copyOf(row, row.length, String[].class));
+            }
+
+        }
+        return columnsData;
     }
+
 
     @GET
     @Path("content/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     public List<Column> GetContent(@PathParam("id") Long id) {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
-        List<Object[]> columnsData = getColumnsData(computedTableName);
+        var columnsData = getColumnsData(computedTableName);
 
         // Créer une liste de colonnes à partir des résultats de la requête native
         return columnsData.stream().skip(2)
-                .map(row -> new Column((String) row[0], (String) row[1], getColumnContent(computedTableName, (String) row[0])))
+                .map(row -> new Column(row[0], ValueType.fromString(row[1]), getColumnContent(computedTableName, (String) row[0])))
                 .toList();
     }
 
@@ -108,6 +125,8 @@ public class Manager {
         if (row > getLastIdRow(computedTableName)) {
             throw new BadRequestException("La ligne n'existe pas");
         }
+        var valueType = ValueType.fromString(value); // Check if value is a valid ValueType (throw IllegalArgumentException if not)
+
         em.createNativeQuery("UPDATE " + computedTableName + " SET " + column.toUpperCase() + " = :value WHERE idRow = :row")
                 .setParameter("value", (value == null || value.isEmpty()) ? null : value) // setParameter is a secure way to avoid SQL injection
                 .setParameter("row", row)

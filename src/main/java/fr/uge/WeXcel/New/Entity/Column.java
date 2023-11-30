@@ -6,21 +6,21 @@ import java.util.Objects;
 
 public class Column {
     private String name;
-    private String type;
+    private ValueType type;
     private List<String> values;
 
     // Constructeur par défaut nécessaire pour JPA
     public Column() {
 
     }
-    public Column(String name, String type) {
+    public Column(String name, ValueType type) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(type);
         this.name = name;
         this.type = type;
         this.values = new ArrayList<>();
     }
-    public Column(String name, String type, List<String> values) {
+    public Column(String name, ValueType type, List<String> values) {
         Objects.requireNonNull(name);
         Objects.requireNonNull(type);
         Objects.requireNonNull(values);
@@ -31,7 +31,7 @@ public class Column {
     public String getName() {
         return name;
     }
-    public String getType() {
+    public ValueType getType() {
         return type;
     }
     public List<String> getValues() {
@@ -40,12 +40,11 @@ public class Column {
     public String getValue(int index) {
         return values.get(index);
     }
-
     public void addValue(String value) {
         values.add(value);
     }
-
     public int size() {
         return values.size();
     }
+
 }
