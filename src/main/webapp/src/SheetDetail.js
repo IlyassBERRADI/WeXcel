@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 
+
 function SheetDetail() {
 
   const { sheetId } = useParams();
@@ -133,6 +134,7 @@ function SheetDetail() {
         <h1 className="">Feuille {sheetId}</h1> // TODO: récupérer le nom de la feuille
       </header>
       <div className="container ms-0 p-0">
+        
         <table className="table table-striped">
           <thead>
             <tr>
