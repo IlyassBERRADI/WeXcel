@@ -96,7 +96,7 @@ function SheetDetail() {
         },
         body: JSON.stringify({
           name: newColumnName,
-          type: 'VARCHAR(255)',
+          type: 'STRING',
           values: []
         }),
       });
