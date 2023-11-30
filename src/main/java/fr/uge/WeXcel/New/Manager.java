@@ -46,11 +46,10 @@ public class Manager {
      * @param column The columns name
      * @return List of the column's data
      */
+    @SuppressWarnings("unchecked")
     private List<String> getColumnContent(String computedTableName, String column) {
         try {
-            return em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class) // Gérer potentiel sql injection
-//                   .setParameter(1, column)
-//                    .setParameter(2, computedTableName)*/
+            return (List<String>) em.createNativeQuery("SELECT t." + column + " FROM " + computedTableName + " t", String.class) // Gérer potentiel sql injection
                     .getResultList();
         } catch (Exception e) {
             throw new NotFoundException(e.getMessage());
