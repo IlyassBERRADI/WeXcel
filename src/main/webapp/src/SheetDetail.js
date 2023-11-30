@@ -4,11 +4,13 @@ import { useParams } from 'react-router-dom';
 
 function SheetDetail() {
 
-  const { sheetId } = useParams();
+  const { sheetId, sheetName } = useParams();
 
   const [content, setContent] = useState([]);
+  const [editableValues, setEditableValues] = useState([]);
 
   const [contentChanged, setContentChanged] = useState(false);
+
 
 
   useEffect(() => {
@@ -20,19 +22,26 @@ function SheetDetail() {
         }
         return response.json();
       })
-      .then(data => setContent(data))
+      .then(data => setContent(data) && setEditableValues(data))
       .catch(error => console.error('Error:', error));
-      setContentChanged(false);
+    setContentChanged(false);
   }, [sheetId, contentChanged]);
 
-  const handleInputChange = (column, rowIndex, value) => {
-    // Met à jour l'état local
-    const updatedContent = [...content];
-    updatedContent.forEach((col) => {
-      col.values[rowIndex] = col === column ? value : col.values[rowIndex];
-    });
-    setContent(updatedContent);
-  };
+
+
+
+  useEffect(() => {
+    // Mettez à jour editableValues ici chaque fois que content est modifié
+    if (content && content.length > 0) {
+      setEditableValues(() =>
+        content[0]?.values.map((_, rowIndex) =>
+          content.map((column) =>
+            column.type === "FORMULA" ? (column.values[rowIndex] !== null ? column.values[rowIndex] : null) : ''
+          )
+        )
+      );
+    }
+  }, [content]);
 
   const handleCellValueChange = async (column, rowIndex, value) => {
     try {
@@ -125,16 +134,65 @@ function SheetDetail() {
   };
 
 
+  const handleInputChange = (column, rowIndex, value) => {
+    // Met à jour l'état local
+    if (column.type === 'FORMULA') {
+      const updatedValues = [...editableValues];
+      updatedValues[rowIndex] = updatedValues[rowIndex] || [];
+      updatedValues[rowIndex][content.indexOf(column)] = value;
+      setEditableValues(updatedValues);
+    } else {
+      const updatedContent = [...content];
+      updatedContent.forEach((col) => {
+        col.values[rowIndex] = col === column ? value : col.values[rowIndex];
+      });
+      setContent(updatedContent);
+    }
+  };
+
+
+  const [selectedRow, setSelectedRow] = useState(null);
+  const [selectedColumn, setSelectedColumn] = useState(null);
+
+  // Modifiez la fonction handleInputClick
+  const handleInputClick = (column, rowIndex) => {
+    // Mettez à jour les états pour conserver l'indice de la colonne et de la ligne sélectionnées
+    setSelectedRow(rowIndex);
+    setSelectedColumn(content.findIndex((col) => col === column));
+
+    // Restez dans la logique actuelle pour la mise à jour du contenu modifiable
+    setEditableValues((prevEditableValues) => {
+      return prevEditableValues.map((row, i) =>
+        row.map((value, j) => {
+          if (i === rowIndex && j === selectedColumn) {
+            return column.values[rowIndex] || ''; // Utilisez la formule actuelle si elle existe
+          } else {
+            return value;
+          }
+        })
+      );
+    });
+  };
+
+
+  const handleInputBlur = (column, rowIndex, value) => {
+    // handleCellValueChange(column, rowIndex, editableValues[rowIndex][content.indexOf(column)]);
+    if (column.type === 'FORMULA') {
+      setSelectedRow(null);
+      setSelectedColumn(null);
+    }
+    handleCellValueChange(column, rowIndex, value);
+  };
   return (
     <div className="container-fluid p-0 ">
       <header className="p-3 bg-purple text-white d-flex align-items-center">
         <a className="nav-link text-white" href="/">
           <img src="/wexcel_white_on_black_soft.PNG" alt="Logo" height="50" className="mr-3" />
         </a>
-        <h1 className="">Feuille {sheetId}</h1>
+        <h1 className="">Feuille {sheetName}</h1>
       </header>
       <div className="container ms-0 p-0">
-        
+
         <table className="table table-striped">
           <thead>
             <tr>
@@ -155,6 +213,24 @@ function SheetDetail() {
             </tr>
           </thead>
           <tbody>
+            {/* {content.length > 0 &&
+              content[0].values.map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  <th scope="row">{rowIndex}</th>
+                  {content.map((column, colIndex) => (
+
+                    <td className="text-center" key={colIndex}>
+
+                      <input
+                        type="text"
+                        value={column.values[rowIndex] || ""}
+                        onChange={(e) => handleInputChange(column, rowIndex, e.target.value)}
+                        onBlur={(e) => handleCellValueChange(column, rowIndex, e.target.value)}
+                      />
+                    </td>
+                  ))}
+                </tr>
+              ))} */}
             {content.length > 0 &&
               content[0].values.map((_, rowIndex) => (
                 <tr key={rowIndex}>
@@ -162,12 +238,22 @@ function SheetDetail() {
                   {content.map((column, colIndex) => (
 
                     <td className="text-center" key={colIndex}>
-                      <input
-                        type="text"
-                        value={column.values[rowIndex] || ""}
-                        onChange={(e) => handleInputChange(column, rowIndex, e.target.value)}
-                        onBlur={(e) => handleCellValueChange(column, rowIndex, e.target.value)}
-                      />
+
+                      {column.type === "FORMULA" && selectedRow !== rowIndex && selectedColumn !== column ? (
+                        <span
+                          onClick={() => handleInputClick(column, rowIndex)}
+                          style={{ cursor: 'pointer' }}
+                        >
+                          {column.values[rowIndex] || 'FormuleVide'}
+                        </span>
+                      ) : (
+                        <input
+                          type="text"
+                          value={column.type === "FORMULA" ?  "" :column.values[rowIndex] || ""}
+                          onChange={(e) => handleInputChange(column, rowIndex, e.target.value)}
+                          onBlur={(e) => handleInputBlur(column, rowIndex, e.target.value)}
+                        />
+                      )}
                     </td>
                   ))}
                 </tr>

@@ -111,11 +111,18 @@ public class Manager {
         String computedTableName = Reference.ComputeName(getTableName(id), id);
         var columnsData = getColumnsData(computedTableName);
 
-        // Créer une liste de colonnes à partir des résultats de la requête native
         return columnsData.stream().skip(2)
-                .map(row -> new Column(row[0], ValueType.fromString(row[1]), getColumnContent(computedTableName, (String) row[0])))
+                .map(row -> {
+                    String columnName = row[0];
+//                    String columnType = row[1];
+                    List<String> columnContent = getColumnContent(computedTableName, columnName);
+                    ValueType valueType = ValueType.fromListContent(columnContent);
+
+                    return new Column(columnName, valueType, columnContent);
+                })
                 .toList();
     }
+
 
 
     /**
@@ -310,7 +317,7 @@ public class Manager {
             newColumnContent.set(row.intValue(), (value.isEmpty()) ? null : value);
             System.out.println("newColumnContent = " + newColumnContent);
             var newColumnType = ValueType.fromListContent(newColumnContent);
-            if (newColumnType != columnType) {
+            if (newColumnType != columnType) { // Le type de la colonne a changé après la suppression de la valeur
                 System.out.println("newColumnType = " + newColumnType);
                 updateColumn(computedTableName, columnName, columnType, value, newColumnType, row, columnDataIndex, columnsData);
             } else {

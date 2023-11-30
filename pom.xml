@@ -135,11 +135,8 @@
             <artifactId>hamcrest-all</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-csv</artifactId>
-            <version>1.10.0</version>
-        </dependency>
+
+
     </dependencies>
 
     <build>
@@ -195,7 +192,7 @@
                 <artifactId>jandex-maven-plugin</artifactId>
                 <version>1.2.3</version>
             </plugin>
-            <!--<plugin>
+            <plugin>
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <version>1.14.2</version>
@@ -234,7 +231,7 @@
 
                     </execution>
                 </executions>
-            </plugin>-->
+            </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-antrun-plugin</artifactId>
@@ -258,4 +255,3 @@
         </plugins>
     </build>
 </project>
-

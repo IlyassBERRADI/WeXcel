@@ -13,7 +13,7 @@ root.render(
   <React.StrictMode>
     <BrowserRouter>
       <Routes>
-        <Route exact path="/sheets/:sheetId/" element={<SheetDetail />} />
+        <Route exact path="/sheets/:sheetId/:sheetName" element={<SheetDetail />} />
         <Route exact path="/" element={<Home />} />
       </Routes>
     </BrowserRouter>

@@ -117,7 +117,7 @@ function Home() {
           <ul className="list-group">
             {sheets.map(sheet => (
               <div className="list-group-item d-flex justify-content-between align-items-center" key={sheet.id}>
-                <Link to={`/sheets/${sheet.id}`}>
+                <Link to={`/sheets/${sheet.id}/${sheet.name}`}>
                   <li className="list-group-item ">
                     <strong>Nom :</strong> {sheet.name} <br />
                     <strong>Date de création :</strong> {new Date(sheet.creationDate).toLocaleDateString()} <br />
