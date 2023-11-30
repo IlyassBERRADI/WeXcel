@@ -40,7 +40,7 @@ function SheetDetail() {
       if (!value.trim()) {
         value = null;
       }
-      const response = await fetch(`/api/updateCell/${sheetId}/${column.name}/${rowIndex + 1}`, {
+      const response = await fetch(`/api/updateCell/${sheetId}/${column.name}/${rowIndex}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -52,7 +52,7 @@ function SheetDetail() {
       if (!response.ok) {
         throw new Error(`Erreur lors de la mise à jour de la cellule : ${response.statusText}`);
       }
-      handleInputChange(column, rowIndex, value);
+      setContentChanged(true);
     } catch (error) {
       console.error('Erreur lors de la mise à jour de la cellule :', error.message);
     }
@@ -158,8 +158,9 @@ function SheetDetail() {
             {content.length > 0 &&
               content[0].values.map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  <th scope="row">{rowIndex + 1}</th>
+                  <th scope="row">{rowIndex}</th>
                   {content.map((column, colIndex) => (
+
                     <td className="text-center" key={colIndex}>
                       <input
                         type="text"

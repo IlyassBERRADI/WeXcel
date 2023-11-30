@@ -47,4 +47,12 @@ public class Column {
         return values.size();
     }
 
+    @Override
+    public String toString() {
+        return "Column{" +
+                "name='" + name + '\'' +
+                ", type=" + type +
+                ", values=" + values +
+                '}';
+    }
 }
